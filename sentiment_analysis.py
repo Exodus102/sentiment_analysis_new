@@ -1,25 +1,33 @@
-import gradio as gr
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import tweetnlp
+import os  
 
-# Load the sentiment analysis model
+
 model = tweetnlp.load_model('sentiment', multilingual=True)
 
-# Define function to run prediction
-def analyze_sentiment(text):
-    if not text.strip():
-        return "Error: Text cannot be empty"
+
+app = Flask(__name__)
+CORS(app)  
+
+@app.route('/analyze-sentiment', methods=['POST'])
+def analyze_sentiment():
+    
+    data = request.get_json()
+    if not data or 'text' not in data:
+        return jsonify({'error': 'Text is required'}), 400
+
+    user_input = data['text'].strip()
+    if not user_input:
+        return jsonify({'error': 'Text cannot be empty'}), 400
+
     try:
-        result = model.sentiment(text.strip(), return_probability=True)
-        return result
+     
+        result = model.sentiment(user_input, return_probability=True)
+        return jsonify({'text': user_input, 'sentiment': result}), 200
     except Exception as e:
-        return f"Error: {str(e)}"
+        return jsonify({'error': str(e)}), 500
 
-# Create a Gradio Interface
-iface = gr.Interface(
-    fn=analyze_sentiment,
-    inputs=gr.Textbox(lines=2, placeholder="Enter text here..."),
-    outputs="json",
-    title="Multilingual Sentiment Analyzer"
-)
-
-iface.launch()
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
