@@ -1,5 +1,3 @@
-sdk: python
-dependencies:
-  - Flask
-  - flask-cors
-  - tweetnlp
+sdk: gradio
+app_file: sentiment_analysis.py
+python: "python3.8"
