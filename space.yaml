@@ -1,3 +1,5 @@
-sdk: gradio
-python_version: 3.9
-app_file: sentiment_analysis.py
+sdk: python
+dependencies:
+  - Flask
+  - flask-cors
+  - tweetnlp
